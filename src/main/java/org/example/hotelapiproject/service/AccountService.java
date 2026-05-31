@@ -3,14 +3,18 @@ package org.example.hotelapiproject.service;
 import org.example.hotelapiproject.dto.account_dto.AccountChangePasswordDTO;
 import org.example.hotelapiproject.dto.account_dto.AccountCreateDTO;
 import org.example.hotelapiproject.dto.account_dto.AccountUpdateDTO;
+import org.example.hotelapiproject.dto.auth_dto.LoginRequestDTO;
+import org.example.hotelapiproject.dto.auth_dto.LoginResponseDTO;
 import org.example.hotelapiproject.entity.Account;
 import org.example.hotelapiproject.entity.Role;
 import org.example.hotelapiproject.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -18,6 +22,9 @@ public class AccountService {
 
     @Autowired
     AccountRepository accountRepository;
+
+    @Autowired
+    TokenService tokenService;
 
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
@@ -42,6 +49,23 @@ public class AccountService {
         }
 
         return accountRepository.save(account);
+    }
+
+    public LoginResponseDTO loginAccountByEmail(LoginRequestDTO dto) throws UsernameNotFoundException {
+        Optional<Account> optionAccount = accountRepository.findByEmail(dto.getEmail());
+
+        if (!optionAccount.isPresent()) {
+            throw new UsernameNotFoundException("Account not found");
+        }
+
+        Account account = optionAccount.get();
+        boolean matches = encoder.matches(dto.getPassword(), account.getPassword());
+
+        if (!matches) {
+            throw new UsernameNotFoundException("Incorrect password");
+        }
+
+        return tokenService.generateTokens(dto.getEmail(), account, account.getAuthorities());
     }
 
     public Account findAccountByID(Long account_id) {
