@@ -19,6 +19,8 @@ public class AccountService {
     @Autowired
     AccountRepository accountRepository;
 
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
     public Account registration(AccountCreateDTO dto) {
 
         if (!dto.getPassword().equals(dto.getRepeatPassword())) {
@@ -32,7 +34,7 @@ public class AccountService {
             account.setSurname(dto.getSurname());
         }
         account.setEmail(dto.getEmail());
-        account.setPassword(new BCryptPasswordEncoder().encode(dto.getPassword()));
+        account.setPassword(encoder.encode(dto.getPassword()));
         if (dto.isHotelOwner()) {
             account.setRoles(Set.of(Role.ROLE_HOTEL_OWNER));
         } else {
@@ -65,10 +67,10 @@ public class AccountService {
     }
 
     public Account changePassword(Long account_id, AccountChangePasswordDTO dto) {
-        Account updatePasswordAccount = accountRepository.getReferenceById(account_id);
-        String encodeNewPassword = new BCryptPasswordEncoder().encode(dto.getNewPassword());
+        Account account = accountRepository.getReferenceById(account_id);
 
-        if (!updatePasswordAccount.getPassword().equals(encodeNewPassword)) {
+        if (!encoder.matches(dto.getOldPassword(), account.getPassword())) {
+
             throw new RuntimeException("The old password do not match");
         }
 
@@ -76,12 +78,16 @@ public class AccountService {
             throw new RuntimeException("The new passwords do not match");
         }
 
-        updatePasswordAccount.setPassword(encodeNewPassword);
+        account.setPassword(encoder.encode(dto.getNewPassword()));
 
-        return accountRepository.save(updatePasswordAccount);
+        return accountRepository.save(account);
     }
 
     public void deleteAccountByID(Long account_id) {
+
+        Account account = accountRepository.findById(account_id).
+                orElseThrow(() -> new RuntimeException("Account not find"));
+
         accountRepository.deleteById(account_id);
     }
 }
