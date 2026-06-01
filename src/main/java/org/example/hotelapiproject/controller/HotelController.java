@@ -8,6 +8,7 @@ import org.example.hotelapiproject.service.HotelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,25 +20,29 @@ public class HotelController {
     private HotelService hotelService;
 
     @PostMapping("/create")
-    private ResponseEntity<Hotel> createHotel(@RequestBody HotelCreateDTO hotelCreateDTO,
-                                              @AuthenticationPrincipal Account account) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(hotelService.create(hotelCreateDTO, account));
+    @PreAuthorize("hasRole('HOTEL_OWNER')")
+    public ResponseEntity<Hotel> createHotel(@RequestBody HotelCreateDTO hotelCreateDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(hotelService.create(hotelCreateDTO));
     }
 
     @GetMapping("/{hotel_id}")
-    private Hotel findHotelByID(@PathVariable Long hotel_id) {
+    public Hotel findHotelByID(@PathVariable Long hotel_id) {
         return hotelService.findHotelByID(hotel_id);
     }
 
     @PatchMapping("/update/{hotel_id}")
-    private ResponseEntity<Hotel> updateHotelInfo(@PathVariable Long hotel_id,
-                                                  @RequestBody HotelUpdateDTO hotelUpdateDTO) {
-        return ResponseEntity.ok(hotelService.updateHotelByID(hotel_id, hotelUpdateDTO));
+    @PreAuthorize("hasRole('HOTEL_OWNER')")
+    public ResponseEntity<Hotel> updateHotelInfo(@PathVariable Long hotel_id,
+                                                  @RequestBody HotelUpdateDTO hotelUpdateDTO,
+                                                  @AuthenticationPrincipal Account account) {
+        return ResponseEntity.ok(hotelService.updateHotelByID(hotel_id, hotelUpdateDTO, account));
     }
 
     @DeleteMapping("/{hotel_id}")
-    private ResponseEntity<Hotel> deleteHotelByID(@PathVariable Long hotel_id) {
-        hotelService.deleteHotelByID(hotel_id);
+    @PreAuthorize("hasAnyRole('HOTEL_OWNER', 'ADMIN')")
+    public ResponseEntity<Hotel> deleteHotelByID(@PathVariable Long hotel_id,
+                                                  @AuthenticationPrincipal Account account) {
+        hotelService.deleteHotelByID(hotel_id, account);
         return ResponseEntity.noContent().build();
     }
 }
