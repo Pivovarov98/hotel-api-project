@@ -17,23 +17,23 @@ public class RoomController {
     private RoomService roomService;
 
     @GetMapping("/{room_id}")
-    private Room findRoomByID(@PathVariable Long room_id) {
+    public Room findRoomByID(@PathVariable Long room_id) {
         return roomService.findRoomByID(room_id);
     }
 
     @PostMapping
-    private ResponseEntity<Room> createRoom(@RequestBody RoomCreateDTO roomCreateDTO) {
+    public ResponseEntity<Room> createRoom(@RequestBody RoomCreateDTO roomCreateDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(roomService.createRoom(roomCreateDTO));
     }
 
     @PatchMapping("/{room_id}")
-    private ResponseEntity<Room> updateRoomByID(@PathVariable Long room_id,
+    public ResponseEntity<Room> updateRoomByID(@PathVariable Long room_id,
                                                 @RequestBody RoomUpdateDTO roomUpdateDTO) {
         return ResponseEntity.ok(roomService.updateRoomByID(room_id, roomUpdateDTO));
     }
 
     @DeleteMapping("/{room_id}")
-    private ResponseEntity<Room> deleteByID(@PathVariable Long room_id) {
+    public ResponseEntity<Room> deleteByID(@PathVariable Long room_id) {
         roomService.deleteRoomByID(room_id);
         return ResponseEntity.noContent().build();
     }
