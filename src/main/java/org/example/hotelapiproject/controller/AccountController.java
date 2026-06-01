@@ -3,6 +3,8 @@ package org.example.hotelapiproject.controller;
 import org.example.hotelapiproject.dto.account_dto.AccountChangePasswordDTO;
 import org.example.hotelapiproject.dto.account_dto.AccountCreateDTO;
 import org.example.hotelapiproject.dto.account_dto.AccountUpdateDTO;
+import org.example.hotelapiproject.dto.auth_dto.LoginRequestDTO;
+import org.example.hotelapiproject.dto.auth_dto.LoginResponseDTO;
 import org.example.hotelapiproject.entity.Account;
 import org.example.hotelapiproject.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,11 @@ public class AccountController {
     @PostMapping("/registration")
     public ResponseEntity<Account> registration(@RequestBody AccountCreateDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(accountService.registration(dto));
+    }
+
+    @PostMapping("/log_in")
+    public ResponseEntity<LoginResponseDTO> auth(@RequestBody LoginRequestDTO dto){
+        return ResponseEntity.ok(accountService.loginAccountByEmail(dto));
     }
 
     @GetMapping("/{account_id}")
