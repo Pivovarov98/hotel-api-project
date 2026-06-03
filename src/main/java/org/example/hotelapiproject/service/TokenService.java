@@ -34,12 +34,6 @@ public class TokenService {
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
 
-    @Autowired
-    private AccountRepository accountRepository;
-
-    @Autowired
-    private ApplicationContext applicationContext;
-
     private SecretKey generateKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
@@ -102,41 +96,6 @@ public class TokenService {
 
         return new LoginResponseDTO(accessToken, refreshToken);
     }
-
-//    public Optional<LoginResponseDTO> refreshAccessToken(String refreshToken) {
-//        try {
-//            Claims claims = this.validateToken(refreshToken);
-//
-//            if (!"refresh".equals(claims.get("type"))) {
-//                throw new InternalAuthenticationServiceException("Invalid token type");
-//            }
-//            Long accountId = getAccountIdFromToken(refreshToken);
-//
-//            Optional<Account> account = accountRepository.findById(accountId);
-//
-//            if (!account.isPresent()) {
-//                throw new RuntimeException("User not found");
-//            }
-//            String tokenId = claims.getId();
-//            String email = claims.getSubject();
-//
-//            refreshTokenRepository.deleteByToken(tokenId);
-//
-//            List<String> roles = account.get().getRoles().stream()
-//                    .map(Enum::name)
-//                    .toList();
-//
-//            String newAccessToken = generateAccessToken(email, accountId, roles);
-//            String newRefreshToken = generateRefreshToken(email, accountId, roles);
-//
-//            return Optional.of(new LoginResponseDTO(newAccessToken, newRefreshToken));
-//
-//        } catch (ExpiredJwtException e) {
-//            throw new InternalAuthenticationServiceException("Refresh token expired");
-//        } catch (Exception e) {
-//            throw new InternalAuthenticationServiceException("Invalid refresh token");
-//        }
-//    }
 
     @Scheduled(cron = "0 0 3 * * *")
     @Transactional

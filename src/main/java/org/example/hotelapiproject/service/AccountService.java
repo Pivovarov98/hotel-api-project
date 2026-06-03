@@ -6,7 +6,9 @@ import org.example.hotelapiproject.dto.account_dto.AccountResponseDTO;
 import org.example.hotelapiproject.dto.account_dto.AccountUpdateDTO;
 import org.example.hotelapiproject.dto.auth_dto.LoginRequestDTO;
 import org.example.hotelapiproject.dto.auth_dto.LoginResponseDTO;
+import org.example.hotelapiproject.dto.hotel_dto.HotelShortDTO;
 import org.example.hotelapiproject.entity.Account;
+import org.example.hotelapiproject.entity.Hotel;
 import org.example.hotelapiproject.entity.Role;
 import org.example.hotelapiproject.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +34,7 @@ public class AccountService implements UserDetailsService {
 
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    public Account registration(AccountCreateDTO dto) {
+    public AccountResponseDTO registration(AccountCreateDTO dto) {
 
         if (!dto.getPassword().equals(dto.getRepeatPassword())) {
             throw new RuntimeException("The passwords do not match");
@@ -52,7 +54,7 @@ public class AccountService implements UserDetailsService {
             account.setRoles(Set.of(Role.ROLE_TRAVELER));
         }
 
-        return accountRepository.save(account);
+        return responseDTO( accountRepository.save(account));
     }
 
     public LoginResponseDTO loginAccountByEmail(LoginRequestDTO dto) throws UsernameNotFoundException {
@@ -76,7 +78,7 @@ public class AccountService implements UserDetailsService {
         return responseDTO(accountRepository.getReferenceById(account_id));
     }
 
-    public Account updateAccountByID(Long account_id, AccountUpdateDTO dto) {
+    public AccountResponseDTO updateAccountByID(Long account_id, AccountUpdateDTO dto) {
         Account updateAccount = accountRepository.getReferenceById(account_id);
 
         if (Objects.nonNull(dto.getEmail())) {
@@ -91,10 +93,10 @@ public class AccountService implements UserDetailsService {
             updateAccount.setSurname(dto.getSurname());
         }
 
-        return accountRepository.save(updateAccount);
+        return responseDTO(accountRepository.save(updateAccount));
     }
 
-    public Account changePassword(Long account_id, AccountChangePasswordDTO dto) {
+    public AccountResponseDTO changePassword(Long account_id, AccountChangePasswordDTO dto) {
         Account account = accountRepository.getReferenceById(account_id);
 
         if (!encoder.matches(dto.getOldPassword(), account.getPassword())) {
@@ -108,7 +110,7 @@ public class AccountService implements UserDetailsService {
 
         account.setPassword(encoder.encode(dto.getNewPassword()));
 
-        return accountRepository.save(account);
+        return responseDTO(accountRepository.save(account));
     }
 
     public void deleteAccountByID(Long account_id) {
@@ -125,12 +127,16 @@ public class AccountService implements UserDetailsService {
         dto.setEmail(account.getEmail());
         dto.setName(account.getName());
         dto.setSurname(account.getSurname());
-
-        if (account.getHotels().isEmpty()){
-            dto.setHotels(account.getHotels());
-        }
+        dto.setHotels(account.getHotels()
+                .stream()
+                .map(this::hotelToShortDTO)
+                .toList());
 
         return dto;
+    }
+
+    private HotelShortDTO hotelToShortDTO(Hotel hotel){
+        return new HotelShortDTO(hotel.getId(), hotel.getName());
     }
 
     @Override

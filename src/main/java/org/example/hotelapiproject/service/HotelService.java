@@ -1,9 +1,12 @@
 package org.example.hotelapiproject.service;
 
 import org.example.hotelapiproject.dto.hotel_dto.HotelCreateDTO;
+import org.example.hotelapiproject.dto.hotel_dto.HotelResponseDTO;
 import org.example.hotelapiproject.dto.hotel_dto.HotelUpdateDTO;
+import org.example.hotelapiproject.dto.room_dto.RoomShortDTO;
 import org.example.hotelapiproject.entity.Account;
 import org.example.hotelapiproject.entity.Hotel;
+import org.example.hotelapiproject.entity.Room;
 import org.example.hotelapiproject.repository.AccountRepository;
 import org.example.hotelapiproject.repository.HotelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +24,7 @@ public class HotelService {
     @Autowired
     AccountRepository accountRepository;
 
-    public Hotel create(HotelCreateDTO hotelCreateDTO) {
+    public HotelResponseDTO create(HotelCreateDTO hotelCreateDTO) {
         Hotel hotel = new Hotel();
         Account account = accountRepository.findByEmail(
                 SecurityContextHolder
@@ -35,14 +38,14 @@ public class HotelService {
         hotel.setLongitude(hotelCreateDTO.getLongitude());
         hotel.setAccount(account);
 
-        return hotelRepository.save(hotel);
+        return responseDTO(hotelRepository.save(hotel));
     }
 
-    public Hotel findHotelByID(Long hotel_id) {
-        return hotelRepository.getReferenceById(hotel_id);
+    public HotelResponseDTO findHotelByID(Long hotel_id) {
+        return responseDTO(hotelRepository.getReferenceById(hotel_id));
     }
 
-    public Hotel updateHotelByID(Long hotel_id, HotelUpdateDTO hotelUpdateDTO, Account account) {
+    public HotelResponseDTO updateHotelByID(Long hotel_id, HotelUpdateDTO hotelUpdateDTO, Account account) {
         Hotel updateHotel = hotelRepository.getReferenceById(hotel_id);
 
         if (Objects.nonNull(hotelUpdateDTO.getName())) {
@@ -57,7 +60,7 @@ public class HotelService {
             updateHotel.setLongitude(hotelUpdateDTO.getLongitude());
         }
 
-        return hotelRepository.save(updateHotel);
+        return responseDTO(hotelRepository.save(updateHotel));
     }
 
     public void deleteHotelByID(Long hotel_id, Account account) {
@@ -67,5 +70,24 @@ public class HotelService {
         }
 
         hotelRepository.deleteById(hotel_id);
+    }
+
+    private HotelResponseDTO responseDTO(Hotel hotel){
+        HotelResponseDTO response = new HotelResponseDTO();
+
+        response.setName(hotel.getName());
+        response.setDescription(hotel.getDescription());
+        response.setLatitude(hotel.getLatitude());
+        response.setLongitude(hotel.getLongitude());
+        response.setRooms(hotel.getRooms()
+                .stream()
+                .map(this::roomToShortDTO)
+                .toList());
+
+        return response;
+    }
+
+    private RoomShortDTO roomToShortDTO(Room room){
+        return new RoomShortDTO(room.getId(), room.getPrice(), room.getRoomTitle());
     }
 }
