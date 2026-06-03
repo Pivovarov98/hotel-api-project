@@ -21,7 +21,7 @@ public class AccountController {
     private AccountService accountService;
 
     @PostMapping("/registration")
-    public ResponseEntity<Account> registration(@RequestBody AccountCreateDTO dto) {
+    public ResponseEntity<AccountResponseDTO> registration(@RequestBody AccountCreateDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(accountService.registration(dto));
     }
 
@@ -36,13 +36,13 @@ public class AccountController {
     }
 
     @PatchMapping("/{account_id}")
-    public ResponseEntity<Account> updateAccount(@PathVariable Long account_id,
+    public ResponseEntity<AccountResponseDTO> updateAccount(@PathVariable Long account_id,
                                                  @RequestBody AccountUpdateDTO dto) {
         return ResponseEntity.ok(accountService.updateAccountByID(account_id, dto));
     }
 
     @PatchMapping("/change-password/{account_id}")
-    public ResponseEntity<Account> changePassword(@PathVariable Long account_id,
+    public ResponseEntity<AccountResponseDTO> changePassword(@PathVariable Long account_id,
                                                   @RequestBody AccountChangePasswordDTO dto) {
         return ResponseEntity.ok(accountService.changePassword(account_id, dto));
     }

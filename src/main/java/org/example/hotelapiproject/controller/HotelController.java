@@ -1,6 +1,7 @@
 package org.example.hotelapiproject.controller;
 
 import org.example.hotelapiproject.dto.hotel_dto.HotelCreateDTO;
+import org.example.hotelapiproject.dto.hotel_dto.HotelResponseDTO;
 import org.example.hotelapiproject.dto.hotel_dto.HotelUpdateDTO;
 import org.example.hotelapiproject.entity.Account;
 import org.example.hotelapiproject.entity.Hotel;
@@ -21,18 +22,18 @@ public class HotelController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('HOTEL_OWNER')")
-    public ResponseEntity<Hotel> createHotel(@RequestBody HotelCreateDTO hotelCreateDTO) {
+    public ResponseEntity<HotelResponseDTO> createHotel(@RequestBody HotelCreateDTO hotelCreateDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(hotelService.create(hotelCreateDTO));
     }
 
     @GetMapping("/{hotel_id}")
-    public Hotel findHotelByID(@PathVariable Long hotel_id) {
+    public HotelResponseDTO findHotelByID(@PathVariable Long hotel_id) {
         return hotelService.findHotelByID(hotel_id);
     }
 
     @PatchMapping("/update/{hotel_id}")
     @PreAuthorize("hasRole('HOTEL_OWNER')")
-    public ResponseEntity<Hotel> updateHotelInfo(@PathVariable Long hotel_id,
+    public ResponseEntity<HotelResponseDTO> updateHotelInfo(@PathVariable Long hotel_id,
                                                   @RequestBody HotelUpdateDTO hotelUpdateDTO,
                                                   @AuthenticationPrincipal Account account) {
         return ResponseEntity.ok(hotelService.updateHotelByID(hotel_id, hotelUpdateDTO, account));

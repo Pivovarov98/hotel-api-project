@@ -1,6 +1,7 @@
 package org.example.hotelapiproject.controller;
 
 import org.example.hotelapiproject.dto.room_dto.RoomCreateDTO;
+import org.example.hotelapiproject.dto.room_dto.RoomResponseDTO;
 import org.example.hotelapiproject.dto.room_dto.RoomUpdateDTO;
 import org.example.hotelapiproject.entity.Room;
 import org.example.hotelapiproject.service.RoomService;
@@ -17,18 +18,18 @@ public class RoomController {
     private RoomService roomService;
 
     @GetMapping("/{room_id}")
-    public Room findRoomByID(@PathVariable Long room_id) {
+    public RoomResponseDTO findRoomByID(@PathVariable Long room_id) {
         return roomService.findRoomByID(room_id);
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Room> createRoom(@PathVariable Long hotel_id,
+    public ResponseEntity<RoomResponseDTO> createRoom(@PathVariable Long hotel_id,
                                            @RequestBody RoomCreateDTO roomCreateDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(roomService.createRoom(hotel_id, roomCreateDTO));
     }
 
     @PatchMapping("/{room_id}")
-    public ResponseEntity<Room> updateRoomByID(@PathVariable Long room_id,
+    public ResponseEntity<RoomResponseDTO> updateRoomByID(@PathVariable Long room_id,
                                                 @RequestBody RoomUpdateDTO roomUpdateDTO) {
         return ResponseEntity.ok(roomService.updateRoomByID(room_id, roomUpdateDTO));
     }
