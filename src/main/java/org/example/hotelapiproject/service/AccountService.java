@@ -2,6 +2,7 @@ package org.example.hotelapiproject.service;
 
 import org.example.hotelapiproject.dto.account_dto.AccountChangePasswordDTO;
 import org.example.hotelapiproject.dto.account_dto.AccountCreateDTO;
+import org.example.hotelapiproject.dto.account_dto.AccountResponseDTO;
 import org.example.hotelapiproject.dto.account_dto.AccountUpdateDTO;
 import org.example.hotelapiproject.dto.auth_dto.LoginRequestDTO;
 import org.example.hotelapiproject.dto.auth_dto.LoginResponseDTO;
@@ -9,6 +10,9 @@ import org.example.hotelapiproject.entity.Account;
 import org.example.hotelapiproject.entity.Role;
 import org.example.hotelapiproject.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,7 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-public class AccountService {
+public class AccountService implements UserDetailsService {
 
     @Autowired
     AccountRepository accountRepository;
@@ -68,8 +72,8 @@ public class AccountService {
         return tokenService.generateTokens(dto.getEmail(), account, account.getAuthorities());
     }
 
-    public Account findAccountByID(Long account_id) {
-        return accountRepository.getReferenceById(account_id);
+    public AccountResponseDTO findAccountByID(Long account_id) {
+        return responseDTO(accountRepository.getReferenceById(account_id));
     }
 
     public Account updateAccountByID(Long account_id, AccountUpdateDTO dto) {
@@ -113,5 +117,30 @@ public class AccountService {
                 orElseThrow(() -> new RuntimeException("Account not find"));
 
         accountRepository.deleteById(account_id);
+    }
+
+    private AccountResponseDTO responseDTO (Account account){
+        AccountResponseDTO dto = new AccountResponseDTO();
+
+        dto.setEmail(account.getEmail());
+        dto.setName(account.getName());
+        dto.setSurname(account.getSurname());
+
+        if (account.getHotels().isEmpty()){
+            dto.setHotels(account.getHotels());
+        }
+
+        return dto;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Optional<Account> byUsername = accountRepository.findByEmail(email);
+
+        if (byUsername.isPresent()) {
+            return byUsername.get();
+        }
+
+        throw new UsernameNotFoundException("User not found");
     }
 }

@@ -1,6 +1,7 @@
 package org.example.hotelapiproject.service;
 
-import org.example.hotelapiproject.dto.auth_dto.AuthResponseDTO;
+import jakarta.transaction.Transactional;
+import org.example.hotelapiproject.dto.auth_dto.LoginResponseDTO;
 import org.example.hotelapiproject.entity.Account;
 import org.example.hotelapiproject.entity.RefreshToken;
 import org.example.hotelapiproject.repository.AccountRepository;
@@ -10,6 +11,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -27,7 +29,7 @@ public class TokenService {
     @Value("${jwt.refresh.expiration:604800000}")
     private long refreshExpiration;
 
-    private final String SECRET_KEY = "supersecretkeyforjwt";
+    private final String SECRET_KEY = "supersecretkeyforjwtsgdewthertyjregscedgwerfhwealkjfpiqwjhfdoigsefihguoisenbiewufhgowejfotg";
 
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
@@ -80,8 +82,8 @@ public class TokenService {
         }
     }
 
-    public AuthResponseDTO generateTokens(String email, Account account,
-                                          Collection<? extends GrantedAuthority> authorities) {
+    public LoginResponseDTO generateTokens(String email, Account account,
+                                           Collection<? extends GrantedAuthority> authorities) {
         refreshTokenRepository.deleteByAccountId(account.getId());
 
         List<String> roles = authorities.stream()
@@ -98,6 +100,56 @@ public class TokenService {
 
         refreshTokenRepository.save(refreshTokenEntity);
 
-        return new AuthResponseDTO(accessToken, refreshToken);
+        return new LoginResponseDTO(accessToken, refreshToken);
+    }
+
+//    public Optional<LoginResponseDTO> refreshAccessToken(String refreshToken) {
+//        try {
+//            Claims claims = this.validateToken(refreshToken);
+//
+//            if (!"refresh".equals(claims.get("type"))) {
+//                throw new InternalAuthenticationServiceException("Invalid token type");
+//            }
+//            Long accountId = getAccountIdFromToken(refreshToken);
+//
+//            Optional<Account> account = accountRepository.findById(accountId);
+//
+//            if (!account.isPresent()) {
+//                throw new RuntimeException("User not found");
+//            }
+//            String tokenId = claims.getId();
+//            String email = claims.getSubject();
+//
+//            refreshTokenRepository.deleteByToken(tokenId);
+//
+//            List<String> roles = account.get().getRoles().stream()
+//                    .map(Enum::name)
+//                    .toList();
+//
+//            String newAccessToken = generateAccessToken(email, accountId, roles);
+//            String newRefreshToken = generateRefreshToken(email, accountId, roles);
+//
+//            return Optional.of(new LoginResponseDTO(newAccessToken, newRefreshToken));
+//
+//        } catch (ExpiredJwtException e) {
+//            throw new InternalAuthenticationServiceException("Refresh token expired");
+//        } catch (Exception e) {
+//            throw new InternalAuthenticationServiceException("Invalid refresh token");
+//        }
+//    }
+
+    @Scheduled(cron = "0 0 3 * * *")
+    @Transactional
+    public void cleanupExpiredTokens() {
+        refreshTokenRepository.deleteByExpiryDateBefore(LocalDateTime.now());
+    }
+
+    public Long getAccountIdFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(generateKey())
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.get("accountId", Long.class);
     }
 }

@@ -3,6 +3,7 @@ package org.example.hotelapiproject.service;
 import org.example.hotelapiproject.dto.room_dto.RoomCreateDTO;
 import org.example.hotelapiproject.dto.room_dto.RoomUpdateDTO;
 import org.example.hotelapiproject.entity.Room;
+import org.example.hotelapiproject.repository.HotelRepository;
 import org.example.hotelapiproject.repository.RoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,13 +16,17 @@ public class RoomService {
     @Autowired
     private RoomRepository roomRepository;
 
-    public Room createRoom(RoomCreateDTO roomCreateDTO) {
+    @Autowired
+    HotelRepository hotelRepository;
+
+    public Room createRoom(Long hotel_id, RoomCreateDTO roomCreateDTO) {
 
         Room room = new Room();
 
         room.setRoomTitle(roomCreateDTO.getRoomTitle());
         room.setRoomDescription(roomCreateDTO.getRoomDescription());
         room.setPrice(roomCreateDTO.getPrice());
+        room.setHotel(hotelRepository.getReferenceById(hotel_id));
         room.setAvailable(true);
 
         return roomRepository.save(room);
