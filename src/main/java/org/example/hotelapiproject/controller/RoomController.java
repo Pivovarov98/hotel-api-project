@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/hotels/*/rooms")
+@RequestMapping("/hotels/{hotel_id}/rooms")
 public class RoomController {
 
     @Autowired
@@ -21,9 +21,10 @@ public class RoomController {
         return roomService.findRoomByID(room_id);
     }
 
-    @PostMapping
-    public ResponseEntity<Room> createRoom(@RequestBody RoomCreateDTO roomCreateDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(roomService.createRoom(roomCreateDTO));
+    @PostMapping("/create")
+    public ResponseEntity<Room> createRoom(@PathVariable Long hotel_id,
+                                           @RequestBody RoomCreateDTO roomCreateDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(roomService.createRoom(hotel_id, roomCreateDTO));
     }
 
     @PatchMapping("/{room_id}")
