@@ -2,6 +2,7 @@ package org.example.hotelapiproject.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -22,7 +23,7 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @NotNull
     private BigDecimal price;
 
     @NotBlank
@@ -31,7 +32,7 @@ public class Room {
     @NotBlank
     private String roomDescription;
 
-    @NotBlank
+    @NotNull
     private boolean isAvailable;
 
     @CreationTimestamp

@@ -2,6 +2,7 @@ package org.example.hotelapiproject.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -28,10 +29,10 @@ public class Hotel {
     @NotBlank
     private String description;
 
-    @NotBlank
+    @NotNull
     private BigDecimal latitude;
 
-    @NotBlank
+    @NotNull
     private BigDecimal longitude;
 
     @CreationTimestamp

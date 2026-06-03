@@ -40,7 +40,6 @@ public class Account implements UserDetails {
     private String password;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @JsonIgnore
     private Set<Role> roles = new HashSet<>();
 
     @CreationTimestamp
