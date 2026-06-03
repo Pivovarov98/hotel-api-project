@@ -2,6 +2,7 @@ package org.example.hotelapiproject.controller;
 
 import org.example.hotelapiproject.dto.account_dto.AccountChangePasswordDTO;
 import org.example.hotelapiproject.dto.account_dto.AccountCreateDTO;
+import org.example.hotelapiproject.dto.account_dto.AccountResponseDTO;
 import org.example.hotelapiproject.dto.account_dto.AccountUpdateDTO;
 import org.example.hotelapiproject.dto.auth_dto.LoginRequestDTO;
 import org.example.hotelapiproject.dto.auth_dto.LoginResponseDTO;
@@ -30,7 +31,7 @@ public class AccountController {
     }
 
     @GetMapping("/{account_id}")
-    public Account findAccountByID(@PathVariable Long account_id) {
+    public AccountResponseDTO findAccountByID(@PathVariable Long account_id) {
         return accountService.findAccountByID(account_id);
     }
 
