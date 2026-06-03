@@ -22,6 +22,5 @@ public class AccountCreateDTO {
     @NotBlank
     private String repeatPassword;
 
-
     private boolean isHotelOwner;
 }
