@@ -40,7 +40,10 @@ public class SecurityConfig {
                 .formLogin((AbstractHttpConfigurer::disable))
                 .logout((AbstractHttpConfigurer::disable))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/accounts/registration", "/accounts/log_in").permitAll()
+                        .requestMatchers("/accounts/registration",
+                                "/accounts/log_in",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
