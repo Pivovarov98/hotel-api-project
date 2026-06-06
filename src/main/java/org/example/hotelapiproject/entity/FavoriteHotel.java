@@ -10,6 +10,13 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {"account_id", "hotel_id"}
+                )
+        }
+)
 public class FavoriteHotel {
 
     @Id
