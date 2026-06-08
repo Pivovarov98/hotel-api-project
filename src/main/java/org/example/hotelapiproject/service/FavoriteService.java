@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,6 +71,11 @@ public class FavoriteService {
                         favoriteHotel.getHotel().getId(),
                         favoriteHotel.getHotel().getName(),
                         favoriteHotel.getHotel().getDescription(),
+                        favoriteHotel.getHotel().getRooms()
+                                .stream()
+                                .map(Room::getPrice)
+                                .min(BigDecimal::compareTo)
+                                .orElse(BigDecimal.ZERO),
                         true
                 ))
                 .toList();
