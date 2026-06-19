@@ -1,4 +1,4 @@
-package org.example.hotelapiproject.entity;
+package org.example.hotelapiproject.service;
 
 import org.springframework.stereotype.Service;
 
