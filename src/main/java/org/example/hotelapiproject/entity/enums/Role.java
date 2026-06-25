@@ -1,4 +1,4 @@
-package org.example.hotelapiproject.entity;
+package org.example.hotelapiproject.entity.enums;
 
 import org.springframework.security.core.GrantedAuthority;
 
