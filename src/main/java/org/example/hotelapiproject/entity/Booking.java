@@ -1,16 +1,20 @@
 package org.example.hotelapiproject.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.example.hotelapiproject.entity.enums.BookingStatus;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Booking {
 
     @Id
@@ -31,4 +35,9 @@ public class Booking {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    private BigDecimal totalPrice;
+
+    @Enumerated(EnumType.STRING)
+    private BookingStatus status;
 }
