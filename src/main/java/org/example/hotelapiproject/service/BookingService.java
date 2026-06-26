@@ -5,6 +5,7 @@ import org.example.hotelapiproject.dto.booking_dto.BookingResponseDTO;
 import org.example.hotelapiproject.entity.Account;
 import org.example.hotelapiproject.entity.Booking;
 import org.example.hotelapiproject.entity.Room;
+import org.example.hotelapiproject.entity.enums.BookingStatus;
 import org.example.hotelapiproject.repository.AccountRepository;
 import org.example.hotelapiproject.repository.BookingRepository;
 import org.example.hotelapiproject.repository.RoomRepository;
@@ -24,7 +25,7 @@ public class BookingService {
     @Autowired
     RoomRepository roomRepository;
 
-    public BookingResponseDTO createBooking(Long room_id, BookingCreateDTO dto){
+    public BookingResponseDTO createBooking(BookingCreateDTO dto){
         if (!dto.getReserveFrom().isBefore(dto.getReserveTo())){
             throw  new RuntimeException("invalid booking period");
         }
@@ -35,7 +36,7 @@ public class BookingService {
                         .getAuthentication()
                         .getName()).orElseThrow(() -> new RuntimeException("User not found: "));
 
-        Room room = roomRepository.findById(room_id)
+        Room room = roomRepository.findById(dto.getRoomId())
                 .orElseThrow(() -> new RuntimeException("Room not found"));
 
         boolean isRoomBusy =
@@ -48,11 +49,14 @@ public class BookingService {
             throw new RuntimeException("Room is already booked for these dates");
         }
 
-        Booking booking = new Booking();
-        booking.setRoom(room);
-        booking.setAccount(account);
-        booking.setReserveFrom(dto.getReserveFrom());
-        booking.setReserveTo(dto.getReserveTo());
+        Booking booking = Booking.builder()
+                .account(account)
+                .room(room)
+                .reserveFrom(dto.getReserveFrom())
+                .reserveTo(dto.getReserveTo())
+                .totalPrice(dto.getTotalPrice())
+                .status(BookingStatus.PENDING)
+                .build();
 
         return responseDTO(bookingRepository.save(booking));
     }
