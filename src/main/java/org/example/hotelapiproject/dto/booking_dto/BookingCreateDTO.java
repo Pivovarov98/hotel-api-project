@@ -2,10 +2,13 @@ package org.example.hotelapiproject.dto.booking_dto;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
 public class BookingCreateDTO {
+    private Long roomId;
+    private BigDecimal totalPrice;
     private LocalDate reserveFrom;
     private LocalDate reserveTo;
 }
