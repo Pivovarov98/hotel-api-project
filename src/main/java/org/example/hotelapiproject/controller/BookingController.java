@@ -10,18 +10,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/hotels/*/rooms/{room_id}/booking")
+@RequestMapping("/booking")
 public class BookingController {
 
     @Autowired
     BookingService bookingService;
 
-    @PostMapping()
-    public ResponseEntity<BookingResponseDTO> createBooking(@PathVariable Long room_id, @RequestBody BookingCreateDTO dto){
-        return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createBooking(room_id, dto));
+    @PostMapping
+    public ResponseEntity<BookingResponseDTO> createBooking(@RequestBody BookingCreateDTO dto){
+        return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createBooking(dto));
     }
 
-    @DeleteMapping("/book_id")
+    @DeleteMapping("/{book_id}")
     public ResponseEntity<Booking> deleteBookById(@PathVariable Long book_id){
         bookingService.deleteBookingByID(book_id);
         return ResponseEntity.noContent().build();
