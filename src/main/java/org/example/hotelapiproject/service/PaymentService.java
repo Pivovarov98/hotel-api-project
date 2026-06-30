@@ -3,7 +3,8 @@ package org.example.hotelapiproject.service;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
-import org.example.hotelapiproject.dto.booking_dto.BookingResponseDTO;
+import jakarta.transaction.Transactional;
+import org.example.hotelapiproject.dto.checkout_session_dto.CheckoutSessionData;
 import org.example.hotelapiproject.dto.payments_dto.PaymentResponse;
 import org.example.hotelapiproject.entity.Booking;
 import org.example.hotelapiproject.entity.Payment;
@@ -29,21 +30,40 @@ public class PaymentService {
         Booking booking = bookingRepository.findById(booking_id)
                 .orElseThrow(() -> new RuntimeException("Book not find"));
 
-        String checkoutUrl = createCheckoutSession(booking);
+        CheckoutSessionData sessionData = createCheckoutSession(booking);
 
         Payment payment = Payment.builder()
                 .booking(booking)
                 .amount(booking.getTotalPrice())
                 .status(PaymentStatus.PENDING)
+                .stripeSessionId(sessionData.sessionId())
                 .build();
 
         paymentRepository.save(payment);
 
         bookingRepository.save(booking);
-        return new PaymentResponse(checkoutUrl);
+        return new PaymentResponse(payment.getId(), payment.getStatus().name(), sessionData.checkoutUrl());
     }
 
-    public String createCheckoutSession(Booking booking) throws StripeException {
+    @Transactional
+    public void confirmPayment(String stripeSessionId) {
+
+        Payment payment =
+                paymentRepository
+                        .findByStripeSessionId(stripeSessionId)
+                        .orElseThrow();
+
+        payment.setStatus(PaymentStatus.SUCCESS);
+
+        Booking booking = payment.getBooking();
+
+        booking.setStatus(BookingStatus.CONFIRMED);
+
+        bookingRepository.save(booking);
+        paymentRepository.save(payment);
+    }
+
+    public CheckoutSessionData createCheckoutSession(Booking booking) throws StripeException {
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setSuccessUrl("http://localhost:8080/api/v1/success")
@@ -79,6 +99,6 @@ public class PaymentService {
 
         Session session = Session.create(params);
 
-        return session.getUrl();
+        return new CheckoutSessionData(session.getId(), session.getUrl());
     }
 }
