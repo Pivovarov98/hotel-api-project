@@ -43,7 +43,8 @@ public class SecurityConfig {
                         .requestMatchers("/accounts/registration",
                                 "/accounts/log_in",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**").permitAll()
+                                "/v3/api-docs/**",
+                                "/webhook/stripe").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
