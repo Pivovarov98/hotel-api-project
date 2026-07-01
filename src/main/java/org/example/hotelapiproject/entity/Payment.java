@@ -28,4 +28,9 @@ public class Payment {
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
+
+    @Column(unique = true)
+    private String stripeSessionId;
+
+    private String stripePaymentIntentId;
 }
