@@ -10,11 +10,14 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
+@Builder
 public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private String reviewTitle;
 
     private String reviewDescription;
 
