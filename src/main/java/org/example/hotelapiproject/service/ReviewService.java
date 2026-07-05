@@ -1,6 +1,10 @@
 package org.example.hotelapiproject.service;
 
+import org.example.hotelapiproject.dto.review_dto.CreateReviewDTO;
+import org.example.hotelapiproject.dto.review_dto.ReviewResponseDTO;
+import org.example.hotelapiproject.entity.Hotel;
 import org.example.hotelapiproject.entity.Review;
+import org.example.hotelapiproject.repository.HotelRepository;
 import org.example.hotelapiproject.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,16 +15,29 @@ public class ReviewService {
     @Autowired
     ReviewRepository reviewRepository;
 
-    public ReviewResponceDTO createReview(CreateReviewDTO dto){
+    @Autowired
+    HotelRepository hotelRepository;
+
+    public ReviewResponseDTO createReview(CreateReviewDTO dto){
+
+        Hotel hotel = hotelRepository.findById(dto.getHotelId())
+                .orElseThrow(() -> new RuntimeException("Hotel not find"));
 
         Review review = Review.builder()
-                .reviewTitle(dto.getTitle)
-                .reviewDescription(dto.getDescription)
-                .rating(dto.getRating)
-                .hotel(dto.getHotelId)
+                .reviewTitle(dto.getTitle())
+                .reviewDescription(dto.getDescription())
+                .rating(dto.getRating())
+                .hotel(hotel)
                 .build();
 
         reviewRepository.save(review);
-        return responceDTO(review);
+        return responseDTO(review);
+    }
+
+    private ReviewResponseDTO responseDTO(Review review){
+        return new ReviewResponseDTO(review.getReviewTitle(),
+                                     review.getReviewDescription(),
+                                     review.getRating(),
+                                     review.getHotel().getId());
     }
 }
