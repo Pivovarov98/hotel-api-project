@@ -3,9 +3,11 @@ package org.example.hotelapiproject.service;
 import org.example.hotelapiproject.dto.hotel_dto.HotelCreateDTO;
 import org.example.hotelapiproject.dto.hotel_dto.HotelResponseDTO;
 import org.example.hotelapiproject.dto.hotel_dto.HotelUpdateDTO;
+import org.example.hotelapiproject.dto.review_dto.ReviewShortResponseDTO;
 import org.example.hotelapiproject.dto.room_dto.RoomShortDTO;
 import org.example.hotelapiproject.entity.Account;
 import org.example.hotelapiproject.entity.Hotel;
+import org.example.hotelapiproject.entity.Review;
 import org.example.hotelapiproject.entity.Room;
 import org.example.hotelapiproject.repository.AccountRepository;
 import org.example.hotelapiproject.repository.HotelRepository;
@@ -83,11 +85,23 @@ public class HotelService {
                 .stream()
                 .map(this::roomToShortDTO)
                 .toList());
+        response.setReviews(hotel.getReviews()
+                .stream()
+                .map(this::reviewShortResponseDTO)
+                .toList());
 
         return response;
     }
 
     private RoomShortDTO roomToShortDTO(Room room){
-        return new RoomShortDTO(room.getId(), room.getPrice(), room.getRoomTitle());
+        return new RoomShortDTO(room.getId(),
+                                room.getPrice(),
+                                room.getRoomTitle());
+    }
+
+    private ReviewShortResponseDTO reviewShortResponseDTO(Review review){
+        return new ReviewShortResponseDTO(review.getReviewTitle(),
+                                          review.getReviewDescription(),
+                                          review.getRating());
     }
 }
