@@ -54,6 +54,9 @@ public class Account implements UserDetails {
     private List<Hotel> hotels = new ArrayList<>();
 
     @OneToMany(mappedBy = "account")
+    private List<Review> reviews;
+
+    @OneToMany(mappedBy = "account")
     private List<FavoriteHotel> favoriteHotels;
 
     @OneToMany(mappedBy = "account")
