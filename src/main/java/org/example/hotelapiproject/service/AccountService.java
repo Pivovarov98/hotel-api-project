@@ -7,8 +7,10 @@ import org.example.hotelapiproject.dto.account_dto.AccountUpdateDTO;
 import org.example.hotelapiproject.dto.auth_dto.LoginRequestDTO;
 import org.example.hotelapiproject.dto.auth_dto.LoginResponseDTO;
 import org.example.hotelapiproject.dto.hotel_dto.HotelShortDTO;
+import org.example.hotelapiproject.dto.review_dto.ReviewShortResponseDTO;
 import org.example.hotelapiproject.entity.Account;
 import org.example.hotelapiproject.entity.Hotel;
+import org.example.hotelapiproject.entity.Review;
 import org.example.hotelapiproject.entity.enums.Role;
 import org.example.hotelapiproject.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,12 +132,22 @@ public class AccountService implements UserDetailsService {
                 .stream()
                 .map(this::hotelToShortDTO)
                 .toList());
+        dto.setReviews(account.getReviews()
+                .stream()
+                .map(this::reviewShortResponseDTO)
+                .toList());
 
         return dto;
     }
 
     private HotelShortDTO hotelToShortDTO(Hotel hotel){
         return new HotelShortDTO(hotel.getId(), hotel.getName());
+    }
+
+    private ReviewShortResponseDTO reviewShortResponseDTO(Review review){
+        return new ReviewShortResponseDTO(review.getReviewTitle(),
+                                          review.getReviewDescription(),
+                                          review.getRating());
     }
 
     @Override
