@@ -56,6 +56,13 @@ public class Hotel {
     )
     private List<FavoriteHotel> favoritedBy = new ArrayList<>();
 
+    @OneToMany(
+            mappedBy = "hotel",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Review> reviews = new ArrayList<>();
+
     public void addRoom(Room room) {
         rooms.add(room);
         room.setHotel(this);
