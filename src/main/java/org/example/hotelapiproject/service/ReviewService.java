@@ -2,6 +2,7 @@ package org.example.hotelapiproject.service;
 
 import org.example.hotelapiproject.dto.review_dto.CreateReviewDTO;
 import org.example.hotelapiproject.dto.review_dto.ReviewResponseDTO;
+import org.example.hotelapiproject.dto.review_dto.UpdateReviewDTO;
 import org.example.hotelapiproject.entity.Hotel;
 import org.example.hotelapiproject.entity.Review;
 import org.example.hotelapiproject.repository.HotelRepository;
@@ -32,6 +33,28 @@ public class ReviewService {
 
         reviewRepository.save(review);
         return responseDTO(review);
+    }
+
+    public ReviewResponseDTO updateReview(Long reviewId, UpdateReviewDTO dto){
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review not find"));
+
+        review.setReviewTitle(dto.getTitle());
+        review.setReviewDescription(dto.getDescription());
+        review.setRating(dto.getRating());
+
+        reviewRepository.save(review);
+
+        return responseDTO(review);
+    }
+
+    public void deleteReview(Long reviewId){
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review not find"));
+
+        reviewRepository.deleteById(reviewId);
     }
 
     private ReviewResponseDTO responseDTO(Review review){
