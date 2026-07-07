@@ -1,6 +1,7 @@
 package org.example.hotelapiproject.dto.hotel_dto;
 
 import lombok.Data;
+import org.example.hotelapiproject.dto.review_dto.ReviewShortResponseDTO;
 import org.example.hotelapiproject.dto.room_dto.RoomShortDTO;
 
 import java.math.BigDecimal;
@@ -14,4 +15,5 @@ public class HotelResponseDTO {
     private BigDecimal latitude;
     private BigDecimal longitude;
     private List<RoomShortDTO> rooms;
+    private List<ReviewShortResponseDTO> reviews;
 }
