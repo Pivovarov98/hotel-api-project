@@ -2,6 +2,7 @@ package org.example.hotelapiproject.dto.account_dto;
 
 import lombok.Data;
 import org.example.hotelapiproject.dto.hotel_dto.HotelShortDTO;
+import org.example.hotelapiproject.dto.review_dto.ReviewShortResponseDTO;
 import org.example.hotelapiproject.entity.Hotel;
 
 import java.util.List;
@@ -13,4 +14,5 @@ public class AccountResponseDTO {
     private String name;
     private String surname;
     private List<HotelShortDTO> hotels;
+    private List<ReviewShortResponseDTO> reviews;
 }
