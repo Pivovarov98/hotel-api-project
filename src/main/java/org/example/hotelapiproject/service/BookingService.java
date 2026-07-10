@@ -69,14 +69,12 @@ public class BookingService {
     }
 
     private BookingResponseDTO responseDTO (Booking book){
-        BookingResponseDTO response = new BookingResponseDTO();
-
-        response.setId(book.getId());
-        response.setRoomId(book.getRoom().getId());
-        response.setAccountId(book.getAccount().getId());
-        response.setReserveFrom(book.getReserveFrom());
-        response.setReserveTo(book.getReserveTo());
-
-        return response;
+        return BookingResponseDTO.builder()
+                .id(book.getId())
+                .roomId(book.getRoom().getId())
+                .accountId(book.getAccount().getId())
+                .reserveFrom(book.getReserveFrom())
+                .reserveTo(book.getReserveTo())
+                .build();
     }
 }
