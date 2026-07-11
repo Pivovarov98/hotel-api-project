@@ -1,4 +1,4 @@
-package org.example.hotelapiproject.exeption;
+package org.example.hotelapiproject.exeption.account;
 
 public class AccessDeniedException extends RuntimeException {
     public AccessDeniedException(String msg) {
