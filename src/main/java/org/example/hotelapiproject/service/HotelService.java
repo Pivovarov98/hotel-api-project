@@ -9,6 +9,8 @@ import org.example.hotelapiproject.entity.Account;
 import org.example.hotelapiproject.entity.Hotel;
 import org.example.hotelapiproject.entity.Review;
 import org.example.hotelapiproject.entity.Room;
+import org.example.hotelapiproject.exeption.account.AccountNotFoundException;
+import org.example.hotelapiproject.exeption.hotel.HotelNotFoundException;
 import org.example.hotelapiproject.repository.AccountRepository;
 import org.example.hotelapiproject.repository.HotelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +30,12 @@ public class HotelService {
 
     public HotelResponseDTO create(HotelCreateDTO hotelCreateDTO) {
         Hotel hotel = new Hotel();
+
         Account account = accountRepository.findByEmail(
                 SecurityContextHolder
                         .getContext()
                         .getAuthentication()
-                        .getName()).orElseThrow(() -> new RuntimeException("User not found: "));
+                        .getName()).orElseThrow(() -> new AccountNotFoundException("User not found: "));
 
         hotel.setName(hotelCreateDTO.getName());
         hotel.setDescription(hotelCreateDTO.getDescription());
@@ -44,14 +47,24 @@ public class HotelService {
     }
 
     public HotelResponseDTO findHotelByID(Long hotel_id) {
-        return responseDTO(hotelRepository.getReferenceById(hotel_id));
+
+        Hotel hotel = hotelRepository.findById(hotel_id)
+                .orElseThrow(() -> new HotelNotFoundException("Hotel not found"));
+
+        return responseDTO(hotel);
     }
 
-    public HotelResponseDTO updateHotelByID(Long hotel_id, HotelUpdateDTO hotelUpdateDTO, Account account) {
-        Hotel updateHotel = hotelRepository.getReferenceById(hotel_id);
+    public HotelResponseDTO updateHotelByID(Long hotel_id, HotelUpdateDTO hotelUpdateDTO) {
+
+        Hotel updateHotel = hotelRepository.findById(hotel_id)
+                .orElseThrow(() -> new HotelNotFoundException("Hotel not found"));
 
         if (Objects.nonNull(hotelUpdateDTO.getName())) {
             updateHotel.setName(hotelUpdateDTO.getName());
+        }
+
+        if (Objects.nonNull(hotelUpdateDTO.getDescription())) {
+            updateHotel.setDescription(hotelUpdateDTO.getDescription());
         }
 
         if (Objects.nonNull(hotelUpdateDTO.getLatitude())) {
@@ -65,13 +78,12 @@ public class HotelService {
         return responseDTO(hotelRepository.save(updateHotel));
     }
 
-    public void deleteHotelByID(Long hotel_id, Account account) {
+    public void deleteHotelByID(Long hotel_id) {
 
-        if (!hotelRepository.existsById(hotel_id)) {
-            throw new RuntimeException("Hotel not found");
-        }
+        Hotel hotel = hotelRepository.findById(hotel_id)
+                .orElseThrow(() -> new HotelNotFoundException("Hotel not found"));
 
-        hotelRepository.deleteById(hotel_id);
+        hotelRepository.deleteById(hotel.getId());
     }
 
     private HotelResponseDTO responseDTO(Hotel hotel){
