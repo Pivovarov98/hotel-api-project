@@ -5,6 +5,8 @@ import org.example.hotelapiproject.dto.review_dto.ReviewResponseDTO;
 import org.example.hotelapiproject.dto.review_dto.UpdateReviewDTO;
 import org.example.hotelapiproject.entity.Hotel;
 import org.example.hotelapiproject.entity.Review;
+import org.example.hotelapiproject.exeption.hotel.HotelNotFoundException;
+import org.example.hotelapiproject.exeption.review.ReviewNotFoundException;
 import org.example.hotelapiproject.repository.HotelRepository;
 import org.example.hotelapiproject.repository.ReviewRepository;
 import org.junit.jupiter.api.Test;
@@ -67,6 +69,32 @@ class ReviewServiceTest {
     }
 
     @Test
+    void hotelNotFoundCreateReview() {
+
+        CreateReviewDTO dto = CreateReviewDTO.builder()
+                .title("Test title")
+                .description("Test Description")
+                .rating(4)
+                .hotelId(1L)
+                .build();
+
+        Hotel hotel = new Hotel();
+        hotel.setId(1L);
+
+        when(hotelRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        HotelNotFoundException exception = assertThrows(
+                HotelNotFoundException.class,
+                () -> reviewService.createReview(dto));
+
+        assertEquals("Hotel not found", exception.getMessage());
+
+        verify(reviewRepository, never())
+                .save(any(Review.class));
+    }
+
+    @Test
     void updateReview() {
 
         Long reviewId = 1L;
@@ -102,6 +130,34 @@ class ReviewServiceTest {
     }
 
     @Test
+    void reviewNotFoundUpdateReview() {
+
+        Long reviewId = 1L;
+
+        Hotel hotel = new Hotel();
+        hotel.setId(1L);
+
+        UpdateReviewDTO dto = UpdateReviewDTO.builder()
+                .title("New test title")
+                .description("New test description")
+                .rating(5)
+                .build();
+
+
+        when(reviewRepository.findById(reviewId))
+                .thenReturn(Optional.empty());
+
+        ReviewNotFoundException exception = assertThrows(
+                ReviewNotFoundException.class,
+                () -> reviewService.updateReview(reviewId, dto));
+
+        assertEquals("Review not found", exception.getMessage());
+
+        verify(reviewRepository, never())
+                .save(any(Review.class));
+    }
+
+    @Test
     void deleteReview() {
 
         Long reviewId = 1L;
@@ -123,5 +179,26 @@ class ReviewServiceTest {
         reviewService.deleteReview(reviewId);
 
         verify(reviewRepository).deleteById(reviewId);
+    }
+
+    @Test
+    void reviewNotFoundDeleteReview() {
+
+        Long reviewId = 1L;
+
+        Hotel hotel = new Hotel();
+        hotel.setId(1L);
+
+        when(reviewRepository.findById(reviewId))
+                .thenReturn(Optional.empty());
+
+        ReviewNotFoundException exception = assertThrows(
+                ReviewNotFoundException.class,
+                () -> reviewService.deleteReview(reviewId));
+
+        assertEquals("Review not found", exception.getMessage());
+
+        verify(reviewRepository, never())
+                .deleteById(anyLong());
     }
 }
