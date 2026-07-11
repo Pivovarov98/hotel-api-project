@@ -3,7 +3,10 @@ package org.example.hotelapiproject.service;
 import org.example.hotelapiproject.dto.room_dto.RoomCreateDTO;
 import org.example.hotelapiproject.dto.room_dto.RoomResponseDTO;
 import org.example.hotelapiproject.dto.room_dto.RoomUpdateDTO;
+import org.example.hotelapiproject.entity.Hotel;
 import org.example.hotelapiproject.entity.Room;
+import org.example.hotelapiproject.exeption.hotel.HotelNotFoundException;
+import org.example.hotelapiproject.exeption.room.RoomNotFoundException;
 import org.example.hotelapiproject.repository.HotelRepository;
 import org.example.hotelapiproject.repository.RoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,23 +25,32 @@ public class RoomService {
 
     public RoomResponseDTO createRoom(Long hotel_id, RoomCreateDTO roomCreateDTO) {
 
+        Hotel hotel = hotelRepository.findById(hotel_id)
+                .orElseThrow(() -> new HotelNotFoundException("Hotel not found"));
+
         Room room = new Room();
 
         room.setRoomTitle(roomCreateDTO.getRoomTitle());
         room.setRoomDescription(roomCreateDTO.getRoomDescription());
         room.setPrice(roomCreateDTO.getPrice());
-        room.setHotel(hotelRepository.getReferenceById(hotel_id));
+        room.setHotel(hotel);
         room.setAvailable(true);
 
         return responseDTO(roomRepository.save(room));
     }
 
     public RoomResponseDTO findRoomByID(Long room_id) {
-        return responseDTO(roomRepository.getReferenceById(room_id));
+
+        Room room = roomRepository.findById(room_id)
+                .orElseThrow(() -> new RoomNotFoundException("Room not found"));
+
+        return responseDTO(room);
     }
 
     public RoomResponseDTO updateRoomByID(Long room_id, RoomUpdateDTO roomUpdateDTO) {
-        Room updateRoom = roomRepository.getReferenceById(room_id);
+
+        Room updateRoom = roomRepository.findById(room_id)
+                .orElseThrow(() -> new RoomNotFoundException("Room not found"));
 
         if (Objects.nonNull(roomUpdateDTO.getRoomTitle())) {
             updateRoom.setRoomTitle(roomUpdateDTO.getRoomTitle());
@@ -57,7 +69,7 @@ public class RoomService {
 
     public void deleteRoomByID(Long room_id) {
         if (!roomRepository.existsById(room_id)) {
-            throw new RuntimeException("Room not found");
+            throw new RoomNotFoundException("Room not found");
         }
 
         roomRepository.deleteById(room_id);
