@@ -5,6 +5,8 @@ import org.example.hotelapiproject.dto.review_dto.ReviewResponseDTO;
 import org.example.hotelapiproject.dto.review_dto.UpdateReviewDTO;
 import org.example.hotelapiproject.entity.Hotel;
 import org.example.hotelapiproject.entity.Review;
+import org.example.hotelapiproject.exeption.hotel.HotelNotFoundException;
+import org.example.hotelapiproject.exeption.review.ReviewNotFoundException;
 import org.example.hotelapiproject.repository.HotelRepository;
 import org.example.hotelapiproject.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +24,7 @@ public class ReviewService {
     public ReviewResponseDTO createReview(CreateReviewDTO dto){
 
         Hotel hotel = hotelRepository.findById(dto.getHotelId())
-                .orElseThrow(() -> new RuntimeException("Hotel not find"));
+                .orElseThrow(() -> new HotelNotFoundException("Hotel not found"));
 
         Review review = Review.builder()
                 .reviewTitle(dto.getTitle())
@@ -38,7 +40,7 @@ public class ReviewService {
     public ReviewResponseDTO updateReview(Long reviewId, UpdateReviewDTO dto){
 
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new RuntimeException("Review not find"));
+                .orElseThrow(() -> new ReviewNotFoundException("Review not found"));
 
         review.setReviewTitle(dto.getTitle());
         review.setReviewDescription(dto.getDescription());
@@ -52,7 +54,7 @@ public class ReviewService {
     public void deleteReview(Long reviewId){
 
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new RuntimeException("Review not find"));
+                .orElseThrow(() -> new ReviewNotFoundException("Review not found"));
 
         reviewRepository.deleteById(reviewId);
     }
