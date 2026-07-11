@@ -34,16 +34,14 @@ public class HotelController {
     @PatchMapping("/update/{hotel_id}")
     @PreAuthorize("hasRole('HOTEL_OWNER')")
     public ResponseEntity<HotelResponseDTO> updateHotelInfo(@PathVariable Long hotel_id,
-                                                  @RequestBody HotelUpdateDTO hotelUpdateDTO,
-                                                  @AuthenticationPrincipal Account account) {
-        return ResponseEntity.ok(hotelService.updateHotelByID(hotel_id, hotelUpdateDTO, account));
+                                                            @RequestBody HotelUpdateDTO hotelUpdateDTO) {
+        return ResponseEntity.ok(hotelService.updateHotelByID(hotel_id, hotelUpdateDTO));
     }
 
     @DeleteMapping("/{hotel_id}")
     @PreAuthorize("hasAnyRole('HOTEL_OWNER', 'ADMIN')")
-    public ResponseEntity<Hotel> deleteHotelByID(@PathVariable Long hotel_id,
-                                                  @AuthenticationPrincipal Account account) {
-        hotelService.deleteHotelByID(hotel_id, account);
+    public ResponseEntity<Hotel> deleteHotelByID(@PathVariable Long hotel_id) {
+        hotelService.deleteHotelByID(hotel_id);
         return ResponseEntity.noContent().build();
     }
 }
