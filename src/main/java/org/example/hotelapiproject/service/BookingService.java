@@ -6,6 +6,11 @@ import org.example.hotelapiproject.entity.Account;
 import org.example.hotelapiproject.entity.Booking;
 import org.example.hotelapiproject.entity.Room;
 import org.example.hotelapiproject.entity.enums.BookingStatus;
+import org.example.hotelapiproject.exeption.account.AccountNotFoundException;
+import org.example.hotelapiproject.exeption.booking.BookNotFoundException;
+import org.example.hotelapiproject.exeption.booking.InvalidBookingPeriodException;
+import org.example.hotelapiproject.exeption.booking.RoomAlreadyBookedException;
+import org.example.hotelapiproject.exeption.room.RoomNotFoundException;
 import org.example.hotelapiproject.repository.AccountRepository;
 import org.example.hotelapiproject.repository.BookingRepository;
 import org.example.hotelapiproject.repository.RoomRepository;
@@ -27,17 +32,17 @@ public class BookingService {
 
     public BookingResponseDTO createBooking(BookingCreateDTO dto){
         if (!dto.getReserveFrom().isBefore(dto.getReserveTo())){
-            throw  new RuntimeException("invalid booking period");
+            throw  new InvalidBookingPeriodException("Invalid booking period");
         }
 
         Account account = accountRepository.findByEmail(
                 SecurityContextHolder
                         .getContext()
                         .getAuthentication()
-                        .getName()).orElseThrow(() -> new RuntimeException("User not found: "));
+                        .getName()).orElseThrow(() -> new AccountNotFoundException("User not found: "));
 
         Room room = roomRepository.findById(dto.getRoomId())
-                .orElseThrow(() -> new RuntimeException("Room not found"));
+                .orElseThrow(() -> new RoomNotFoundException("Room not found"));
 
         boolean isRoomBusy =
                 bookingRepository.existsByRoomIdAndReserveFromLessThanAndReserveToGreaterThan(
@@ -46,7 +51,7 @@ public class BookingService {
                         dto.getReserveFrom());
 
         if (isRoomBusy) {
-            throw new RuntimeException("Room is already booked for these dates");
+            throw new RoomAlreadyBookedException("Room is already booked for these dates");
         }
 
         Booking booking = Booking.builder()
@@ -63,7 +68,7 @@ public class BookingService {
 
     public void deleteBookingByID(Long book_id){
         Booking booking = bookingRepository.findById(book_id).
-                orElseThrow(() -> new RuntimeException("Book not find"));
+                orElseThrow(() -> new BookNotFoundException("Book not found"));
 
         bookingRepository.deleteById(book_id);
     }
