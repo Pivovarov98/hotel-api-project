@@ -4,6 +4,9 @@ import jakarta.transaction.Transactional;
 import org.example.hotelapiproject.dto.card.CardHotelResponseDTO;
 import org.example.hotelapiproject.dto.card.CardRoomResponseDTO;
 import org.example.hotelapiproject.entity.*;
+import org.example.hotelapiproject.exeption.account.AccountNotFoundException;
+import org.example.hotelapiproject.exeption.hotel.HotelNotFoundException;
+import org.example.hotelapiproject.exeption.room.RoomNotFoundException;
 import org.example.hotelapiproject.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,19 +20,19 @@ import java.util.Optional;
 public class FavoriteService {
 
     @Autowired
-    HotelRepository hotelRepository;
+    private HotelRepository hotelRepository;
 
     @Autowired
-    RoomRepository roomRepository;
+    private RoomRepository roomRepository;
 
     @Autowired
-    AccountRepository accountRepository;
+    private AccountRepository accountRepository;
 
     @Autowired
-    FavoriteHotelRepository favoriteHotelRepository;
+    private FavoriteHotelRepository favoriteHotelRepository;
 
     @Autowired
-    FavoriteRoomRepository favoriteRoomRepository;
+    private FavoriteRoomRepository favoriteRoomRepository;
 
     @Transactional
     public boolean favoriteHotelToggle(Long hotel_id) {
@@ -37,10 +40,10 @@ public class FavoriteService {
                 SecurityContextHolder
                         .getContext()
                         .getAuthentication()
-                        .getName()).orElseThrow(() -> new RuntimeException("User not found"));
+                        .getName()).orElseThrow(() -> new AccountNotFoundException("User not found"));
 
         Hotel hotel = hotelRepository.findById(hotel_id)
-                .orElseThrow(() -> new RuntimeException("Hotel not found"));
+                .orElseThrow(() -> new HotelNotFoundException("Hotel not found"));
 
         Optional<FavoriteHotel> favorite = favoriteHotelRepository.findByAccountAndHotel(account, hotel);
 
@@ -63,7 +66,7 @@ public class FavoriteService {
                 SecurityContextHolder
                         .getContext()
                         .getAuthentication()
-                        .getName()).orElseThrow(() -> new RuntimeException("User not found"));
+                        .getName()).orElseThrow(() -> new AccountNotFoundException("User not found"));
 
         return favoriteHotelRepository.findAllByAccount(account)
                 .stream()
@@ -87,10 +90,10 @@ public class FavoriteService {
                 SecurityContextHolder
                         .getContext()
                         .getAuthentication()
-                        .getName()).orElseThrow(() -> new RuntimeException("User not found"));
+                        .getName()).orElseThrow(() -> new AccountNotFoundException("User not found"));
 
         Room room = roomRepository.findById(room_id)
-                .orElseThrow(() -> new RuntimeException("Room not found"));
+                .orElseThrow(() -> new RoomNotFoundException("Room not found"));
 
         Optional<FavoriteRoom> favorite = favoriteRoomRepository.findByAccountAndRoom(account, room);
 
@@ -113,7 +116,7 @@ public class FavoriteService {
                 SecurityContextHolder
                         .getContext()
                         .getAuthentication()
-                        .getName()).orElseThrow(() -> new RuntimeException("User not found"));
+                        .getName()).orElseThrow(() -> new AccountNotFoundException("User not found"));
 
         return favoriteRoomRepository.findAllByAccount(account)
                 .stream()
