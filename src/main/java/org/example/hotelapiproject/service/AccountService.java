@@ -12,6 +12,8 @@ import org.example.hotelapiproject.entity.Account;
 import org.example.hotelapiproject.entity.Hotel;
 import org.example.hotelapiproject.entity.Review;
 import org.example.hotelapiproject.entity.enums.Role;
+import org.example.hotelapiproject.exeption.account.AccountNotFoundException;
+import org.example.hotelapiproject.exeption.account.PasswordNotMatchException;
 import org.example.hotelapiproject.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,17 +30,18 @@ import java.util.Set;
 public class AccountService implements UserDetailsService {
 
     @Autowired
-    AccountRepository accountRepository;
+    private AccountRepository accountRepository;
 
     @Autowired
-    TokenService tokenService;
+    private TokenService tokenService;
 
-    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    @Autowired
+    private BCryptPasswordEncoder encoder;
 
     public AccountResponseDTO registration(AccountCreateDTO dto) {
 
         if (!dto.getPassword().equals(dto.getRepeatPassword())) {
-            throw new RuntimeException("The passwords do not match");
+            throw new PasswordNotMatchException("The passwords do not match");
         }
 
         Account account = new Account();
@@ -55,14 +58,14 @@ public class AccountService implements UserDetailsService {
             account.setRoles(Set.of(Role.ROLE_TRAVELER));
         }
 
-        return responseDTO( accountRepository.save(account));
+        return responseDTO(accountRepository.save(account));
     }
 
     public LoginResponseDTO loginAccountByEmail(LoginRequestDTO dto) throws UsernameNotFoundException {
         Optional<Account> optionAccount = accountRepository.findByEmail(dto.getEmail());
 
         if (!optionAccount.isPresent()) {
-            throw new UsernameNotFoundException("Account not found");
+            throw new AccountNotFoundException("Account not found");
         }
 
         Account account = optionAccount.get();
@@ -76,11 +79,17 @@ public class AccountService implements UserDetailsService {
     }
 
     public AccountResponseDTO findAccountByID(Long account_id) {
-        return responseDTO(accountRepository.getReferenceById(account_id));
+
+        Account account = accountRepository.findById(account_id)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found"));
+
+        return responseDTO(account);
     }
 
     public AccountResponseDTO updateAccountByID(Long account_id, AccountUpdateDTO dto) {
-        Account updateAccount = accountRepository.getReferenceById(account_id);
+
+        Account updateAccount = accountRepository.findById(account_id)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
         if (Objects.nonNull(dto.getEmail())) {
             updateAccount.setEmail(dto.getEmail());
@@ -98,15 +107,17 @@ public class AccountService implements UserDetailsService {
     }
 
     public AccountResponseDTO changePassword(Long account_id, AccountChangePasswordDTO dto) {
-        Account account = accountRepository.getReferenceById(account_id);
+
+        Account account = accountRepository.findById(account_id)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
         if (!encoder.matches(dto.getOldPassword(), account.getPassword())) {
 
-            throw new RuntimeException("The old password do not match");
+            throw new PasswordNotMatchException("The old password do not match");
         }
 
         if (!dto.getNewPassword().equals(dto.getRepeatNewPassword())) {
-            throw new RuntimeException("The new passwords do not match");
+            throw new PasswordNotMatchException("The new passwords do not match");
         }
 
         account.setPassword(encoder.encode(dto.getNewPassword()));
@@ -117,12 +128,12 @@ public class AccountService implements UserDetailsService {
     public void deleteAccountByID(Long account_id) {
 
         Account account = accountRepository.findById(account_id).
-                orElseThrow(() -> new RuntimeException("Account not find"));
+                orElseThrow(() -> new AccountNotFoundException("Account not find"));
 
         accountRepository.deleteById(account_id);
     }
 
-    private AccountResponseDTO responseDTO (Account account){
+    private AccountResponseDTO responseDTO(Account account) {
         AccountResponseDTO dto = new AccountResponseDTO();
 
         dto.setEmail(account.getEmail());
@@ -140,14 +151,14 @@ public class AccountService implements UserDetailsService {
         return dto;
     }
 
-    private HotelShortDTO hotelToShortDTO(Hotel hotel){
+    private HotelShortDTO hotelToShortDTO(Hotel hotel) {
         return new HotelShortDTO(hotel.getId(), hotel.getName());
     }
 
-    private ReviewShortResponseDTO reviewShortResponseDTO(Review review){
+    private ReviewShortResponseDTO reviewShortResponseDTO(Review review) {
         return new ReviewShortResponseDTO(review.getReviewTitle(),
-                                          review.getReviewDescription(),
-                                          review.getRating());
+                review.getReviewDescription(),
+                review.getRating());
     }
 
     @Override
