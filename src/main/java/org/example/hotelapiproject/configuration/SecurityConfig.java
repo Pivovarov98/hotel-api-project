@@ -30,7 +30,6 @@ public class SecurityConfig {
     @Autowired
     private ObjectMapper objectMapper;
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -64,7 +63,7 @@ public class SecurityConfig {
     record AuthResponse(String message) {};
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
