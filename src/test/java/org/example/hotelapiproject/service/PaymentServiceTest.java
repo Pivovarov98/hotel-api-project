@@ -1,12 +1,18 @@
 package org.example.hotelapiproject.service;
 
+import com.stripe.exception.StripeException;
+import org.example.hotelapiproject.dto.checkout_session_dto.CheckoutSessionData;
+import org.example.hotelapiproject.dto.payments_dto.PaymentResponse;
+import org.example.hotelapiproject.entity.Account;
 import org.example.hotelapiproject.entity.Booking;
 import org.example.hotelapiproject.entity.Payment;
+import org.example.hotelapiproject.entity.Room;
 import org.example.hotelapiproject.entity.enums.BookingStatus;
 import org.example.hotelapiproject.entity.enums.PaymentStatus;
 import org.example.hotelapiproject.exeption.payment.PaymentNotFoundException;
 import org.example.hotelapiproject.repository.BookingRepository;
 import org.example.hotelapiproject.repository.PaymentRepository;
+import org.example.hotelapiproject.service.payment_integration.StripeService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,11 +34,39 @@ class PaymentServiceTest {
     @Mock
     private BookingRepository bookingRepository;
 
+    @Mock
+    private StripeService stripeService;
+
     @InjectMocks
     private PaymentService paymentService;
 
     @Test
-    void createPayment() {
+    void createPayment() throws StripeException {
+
+        Booking booking = mockBook();
+
+        when(bookingRepository.findById(anyLong()))
+                .thenReturn(Optional.of(booking));
+
+        when(stripeService.createCheckoutSession(booking))
+                .thenReturn(
+                        new CheckoutSessionData(
+                                "session123",
+                                "https://checkout.stripe.com/test"
+                        )
+                );
+
+        when(paymentRepository.save(any(Payment.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        PaymentResponse response = paymentService.createPayment(booking.getId());
+
+        assertEquals("PENDING", response.paymentStatus());
+        assertEquals("https://checkout.stripe.com/test",
+                response.checkoutUrl());
+
+        verify(paymentRepository).save(any(Payment.class));
+        verify(stripeService).createCheckoutSession(booking);
     }
 
     @Test
@@ -87,10 +121,7 @@ class PaymentServiceTest {
     private Payment mockPayment() {
         return Payment.builder()
                 .id(7L)
-                .booking(Booking.builder()
-                        .id(3L)
-                        .status(BookingStatus.PENDING)
-                        .build())
+                .booking(mockBook())
                 .amount(BigDecimal.valueOf(235))
                 .providerPaymentId("123-qwer-456-asdf")
                 .status(PaymentStatus.PENDING)
@@ -99,4 +130,17 @@ class PaymentServiceTest {
                 .build();
     }
 
+    private Booking mockBook() {
+        return Booking.builder()
+                .id(5L)
+                .room(Room.builder()
+                        .id(9L)
+                        .build())
+                .account(Account.builder()
+                        .id(1L)
+                        .build())
+                .status(BookingStatus.PENDING)
+                .totalPrice(BigDecimal.valueOf(185))
+                .build();
+    }
 }
