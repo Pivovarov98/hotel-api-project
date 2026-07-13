@@ -9,6 +9,7 @@ import org.example.hotelapiproject.entity.Payment;
 import org.example.hotelapiproject.entity.Room;
 import org.example.hotelapiproject.entity.enums.BookingStatus;
 import org.example.hotelapiproject.entity.enums.PaymentStatus;
+import org.example.hotelapiproject.exeption.booking.BookNotFoundException;
 import org.example.hotelapiproject.exeption.payment.PaymentNotFoundException;
 import org.example.hotelapiproject.repository.BookingRepository;
 import org.example.hotelapiproject.repository.PaymentRepository;
@@ -67,6 +68,25 @@ class PaymentServiceTest {
 
         verify(paymentRepository).save(any(Payment.class));
         verify(stripeService).createCheckoutSession(booking);
+    }
+
+    @Test
+    void createPaymentBookNotFound() {
+
+        when(bookingRepository.findById(anyLong()))
+                .thenReturn(Optional.empty());
+
+        BookNotFoundException exception = assertThrows(
+                BookNotFoundException.class,
+                () -> paymentService.createPayment(1L));
+
+        assertEquals("Book not found", exception.getMessage());
+
+        verify(paymentRepository, never())
+                .save(any(Payment.class));
+
+        verify(bookingRepository, never())
+                .save(any(Booking.class));
     }
 
     @Test
