@@ -54,6 +54,24 @@ class PaymentServiceTest {
     }
 
     @Test
+    void confirmPaymentBookingConfirmed() {
+
+        Payment payment = mockPayment();
+
+        when(paymentRepository.findByStripeSessionId("stripeSession"))
+                .thenReturn(Optional.of(payment));
+
+        when(bookingRepository.save(any(Booking.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        paymentService.confirmPayment("stripeSession");
+
+        assertEquals(BookingStatus.CONFIRMED, payment.getBooking().getStatus());
+
+        verify(bookingRepository).save(payment.getBooking());
+    }
+
+    @Test
     void confirmPaymentPaymentNotFound() {
 
         when(paymentRepository.findByStripeSessionId(anyString()))
