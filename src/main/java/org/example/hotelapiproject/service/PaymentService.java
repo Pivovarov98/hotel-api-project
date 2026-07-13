@@ -8,6 +8,7 @@ import org.example.hotelapiproject.entity.Booking;
 import org.example.hotelapiproject.entity.Payment;
 import org.example.hotelapiproject.entity.enums.BookingStatus;
 import org.example.hotelapiproject.entity.enums.PaymentStatus;
+import org.example.hotelapiproject.exeption.booking.BookNotFoundException;
 import org.example.hotelapiproject.exeption.payment.PaymentNotFoundException;
 import org.example.hotelapiproject.repository.BookingRepository;
 import org.example.hotelapiproject.repository.PaymentRepository;
@@ -29,7 +30,7 @@ public class PaymentService {
 
     public PaymentResponse createPayment(Long booking_id) throws StripeException {
         Booking booking = bookingRepository.findById(booking_id)
-                .orElseThrow(() -> new RuntimeException("Book not find"));
+                .orElseThrow(() -> new BookNotFoundException("Book not find"));
 
         CheckoutSessionData sessionData = stripeService.createCheckoutSession(booking);
 
