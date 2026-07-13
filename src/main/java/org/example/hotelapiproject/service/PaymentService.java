@@ -30,7 +30,7 @@ public class PaymentService {
 
     public PaymentResponse createPayment(Long booking_id) throws StripeException {
         Booking booking = bookingRepository.findById(booking_id)
-                .orElseThrow(() -> new BookNotFoundException("Book not find"));
+                .orElseThrow(() -> new BookNotFoundException("Book not found"));
 
         CheckoutSessionData sessionData = stripeService.createCheckoutSession(booking);
 
