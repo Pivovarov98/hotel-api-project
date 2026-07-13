@@ -10,6 +10,7 @@ import org.example.hotelapiproject.entity.Booking;
 import org.example.hotelapiproject.entity.Payment;
 import org.example.hotelapiproject.entity.enums.BookingStatus;
 import org.example.hotelapiproject.entity.enums.PaymentStatus;
+import org.example.hotelapiproject.exeption.payment.PaymentNotFoundException;
 import org.example.hotelapiproject.repository.BookingRepository;
 import org.example.hotelapiproject.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,7 @@ public class PaymentService {
         Payment payment =
                 paymentRepository
                         .findByStripeSessionId(stripeSessionId)
-                        .orElseThrow();
+                        .orElseThrow(() -> new PaymentNotFoundException("Payment not found"));
 
         payment.setStatus(PaymentStatus.SUCCESS);
 
