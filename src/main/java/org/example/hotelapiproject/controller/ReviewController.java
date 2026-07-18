@@ -17,20 +17,20 @@ public class ReviewController {
     @Autowired
     ReviewService reviewService;
 
-    @PostMapping("/hotel/reviwe/new")
+    @PostMapping("/hotel/review/new")
     public ResponseEntity<ReviewResponseDTO> createReview(@RequestBody CreateReviewDTO dto){
 
         return ResponseEntity.status(HttpStatus.CREATED).body(reviewService.createReview(dto));
     }
 
-    @PatchMapping("/reviwe/{review_id}")
+    @PatchMapping("/review/{review_id}")
     public ResponseEntity<ReviewResponseDTO> updateReview(@PathVariable Long review_id,
                                                           @RequestBody UpdateReviewDTO dto){
 
         return ResponseEntity.ok().body(reviewService.updateReview(review_id, dto));
     }
 
-    @DeleteMapping("/reviwe/{review_id}")
+    @DeleteMapping("/review/{review_id}")
     public ResponseEntity<Void> deleteReview(@PathVariable Long review_id){
 
         reviewService.deleteReview(review_id);
