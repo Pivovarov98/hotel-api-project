@@ -64,6 +64,11 @@ class BookingControllerTest {
     }
 
     @Test
-    void deleteBookById() {
+    void deleteBookById() throws Exception {
+
+        mockMvc.perform(delete("/booking/8"))
+                .andExpect(status().isNoContent());
+
+        verify(bookingService).deleteBookingByID(8L);
     }
 }
