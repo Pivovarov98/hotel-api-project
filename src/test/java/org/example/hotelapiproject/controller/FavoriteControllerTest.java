@@ -57,7 +57,29 @@ class FavoriteControllerTest {
     }
 
     @Test
-    void favoriteRoomToggle() throws Exception{
+    void favoriteRoomToggleAddFavorite() throws Exception{
+
+        when(favoriteService.favoriteRoomToggle(anyLong()))
+                .thenReturn(true);
+
+        mockMvc.perform(post("/favorite/rooms/24"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.favorite").value(true));
+
+        verify(favoriteService).favoriteRoomToggle(24L);
+    }
+
+    @Test
+    void favoriteRoomToggleRemoveFavorite() throws Exception{
+
+        when(favoriteService.favoriteRoomToggle(anyLong()))
+                .thenReturn(false);
+
+        mockMvc.perform(post("/favorite/rooms/24"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.favorite").value(false));
+
+        verify(favoriteService).favoriteRoomToggle(24L);
     }
 
     @Test
