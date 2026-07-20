@@ -70,6 +70,11 @@ class HotelControllerTest {
     }
 
     @Test
-    void deleteHotelByID() {
+    void deleteHotelByID() throws Exception {
+
+        mockMvc.perform(delete("/hotels/9"))
+                .andExpect(status().isNoContent());
+
+        verify(hotelService).deleteHotelByID(9L);
     }
 }
