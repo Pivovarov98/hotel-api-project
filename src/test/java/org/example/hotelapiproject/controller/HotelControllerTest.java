@@ -63,7 +63,27 @@ class HotelControllerTest {
     }
 
     @Test
-    void findHotelByID() {
+    void findHotelByID() throws Exception {
+
+        HotelResponseDTO response = HotelResponseDTO.builder()
+                .name("Star Hotel")
+                .description("Test new desc")
+                .latitude(BigDecimal.valueOf(158.74))
+                .longitude(BigDecimal.valueOf(845.98))
+                .build();
+
+        when(hotelService.findHotelByID(7L))
+                .thenReturn(response);
+
+        mockMvc.perform(get("/hotels/7")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(response.getName()))
+                .andExpect(jsonPath("$.description").value(response.getDescription()))
+                .andExpect(jsonPath("$.latitude").value(response.getLatitude()))
+                .andExpect(jsonPath("$.longitude").value(response.getLongitude()));
+
+        verify(hotelService).findHotelByID(7L);
     }
 
     @Test
