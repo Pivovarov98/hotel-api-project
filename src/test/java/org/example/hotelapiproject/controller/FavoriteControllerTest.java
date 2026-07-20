@@ -1,6 +1,7 @@
 package org.example.hotelapiproject.controller;
 
 import org.example.hotelapiproject.dto.card.CardHotelResponseDTO;
+import org.example.hotelapiproject.dto.card.CardRoomResponseDTO;
 import org.example.hotelapiproject.service.FavoriteService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,5 +138,57 @@ class FavoriteControllerTest {
 
     @Test
     void getFavoriteRooms() throws Exception{
+
+        List<CardRoomResponseDTO> response = List.of(
+                new CardRoomResponseDTO(
+                        4L,
+                        "Premium room",
+                        "Test description",
+                        BigDecimal.valueOf(350),
+                        true
+                ),
+                new CardRoomResponseDTO(
+                        5L,
+                        "Common room",
+                        "Test desc 2",
+                        BigDecimal.valueOf(100),
+                        true
+                )
+        );
+
+        when(favoriteService.getAllFavoriteRooms())
+                .thenReturn(response);
+
+        mockMvc.perform(get("/favorite/rooms"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+
+                .andExpect(jsonPath("$[0].id").value(4))
+                .andExpect(jsonPath("$[0].title").value("Premium room"))
+                .andExpect(jsonPath("$[0].description").value("Test description"))
+                .andExpect(jsonPath("$[0].price").value(350))
+                .andExpect(jsonPath("$[0].favorite").value(true))
+
+                .andExpect(jsonPath("$[1].id").value(5))
+                .andExpect(jsonPath("$[1].title").value("Common room"))
+                .andExpect(jsonPath("$[1].description").value("Test desc 2"))
+                .andExpect(jsonPath("$[1].price").value(100))
+                .andExpect(jsonPath("$[1].favorite").value(true));
+
+        verify(favoriteService).getAllFavoriteRooms();
+    }
+
+    @Test
+    void getFavoriteRoomsEmptyList() throws Exception{
+
+        when(favoriteService.getAllFavoriteRooms())
+                .thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/favorite/rooms"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
+
+        verify(favoriteService).getAllFavoriteRooms();
     }
 }
