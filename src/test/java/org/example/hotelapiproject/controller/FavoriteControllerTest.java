@@ -1,6 +1,6 @@
 package org.example.hotelapiproject.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.hotelapiproject.dto.card.CardHotelResponseDTO;
 import org.example.hotelapiproject.service.FavoriteService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +8,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -22,9 +26,6 @@ class FavoriteControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Test
     void favoriteHotelToggleAddFavorite() throws Exception{
@@ -54,6 +55,58 @@ class FavoriteControllerTest {
 
     @Test
     void getFavoriteHotels() throws Exception{
+
+        List<CardHotelResponseDTO> response = List.of(
+                new CardHotelResponseDTO(
+                        1L,
+                        "Hilton",
+                        "Luxury hotel",
+                        BigDecimal.valueOf(250),
+                        true
+                ),
+                new CardHotelResponseDTO(
+                        2L,
+                        "Marriott",
+                        "Nice hotel",
+                        BigDecimal.valueOf(180),
+                        true
+                )
+        );
+
+        when(favoriteService.getAllFavoriteHotels())
+                .thenReturn(response);
+
+        mockMvc.perform(get("/favorite/hotels"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Hilton"))
+                .andExpect(jsonPath("$[0].description").value("Luxury hotel"))
+                .andExpect(jsonPath("$[0].minAvailablePrice").value(250))
+                .andExpect(jsonPath("$[0].favorite").value(true))
+
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].name").value("Marriott"))
+                .andExpect(jsonPath("$[1].description").value("Nice hotel"))
+                .andExpect(jsonPath("$[1].minAvailablePrice").value(180))
+                .andExpect(jsonPath("$[1].favorite").value(true));
+
+        verify(favoriteService).getAllFavoriteHotels();
+    }
+
+    @Test
+    void getFavoriteHotelsEmptyList() throws Exception{
+
+        when(favoriteService.getAllFavoriteHotels())
+                .thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/favorite/hotels"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
+
+        verify(favoriteService).getAllFavoriteHotels();
     }
 
     @Test
