@@ -3,6 +3,7 @@ package org.example.hotelapiproject.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.hotelapiproject.dto.hotel_dto.HotelCreateDTO;
 import org.example.hotelapiproject.dto.hotel_dto.HotelResponseDTO;
+import org.example.hotelapiproject.dto.hotel_dto.HotelUpdateDTO;
 import org.example.hotelapiproject.service.HotelService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,33 @@ class HotelControllerTest {
     }
 
     @Test
-    void updateHotelInfo() {
+    void updateHotelInfo() throws Exception {
+
+        HotelUpdateDTO updateDTO = HotelUpdateDTO.builder()
+                .name("Star Hotel")
+                .description("Test new desc")
+                .latitude(BigDecimal.valueOf(158.74))
+                .longitude(BigDecimal.valueOf(845.98))
+                .build();
+
+        HotelResponseDTO response = HotelResponseDTO.builder()
+                .name("Star Hotel")
+                .description("Test new desc")
+                .latitude(BigDecimal.valueOf(158.74))
+                .longitude(BigDecimal.valueOf(845.98))
+                .build();
+
+        when(hotelService.updateHotelByID(3L, updateDTO))
+                .thenReturn(response);
+
+        mockMvc.perform(patch("/hotels/update/3")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(response.getName()))
+                .andExpect(jsonPath("$.description").value(response.getDescription()))
+                .andExpect(jsonPath("$.latitude").value(response.getLatitude()))
+                .andExpect(jsonPath("$.longitude").value(response.getLongitude()));
     }
 
     @Test
