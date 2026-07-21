@@ -1,6 +1,7 @@
 package org.example.hotelapiproject.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.hotelapiproject.dto.account_dto.AccountChangePasswordDTO;
 import org.example.hotelapiproject.dto.account_dto.AccountCreateDTO;
 import org.example.hotelapiproject.dto.account_dto.AccountResponseDTO;
 import org.example.hotelapiproject.dto.account_dto.AccountUpdateDTO;
@@ -113,6 +114,29 @@ class AccountControllerTest {
 
     @Test
     void changePassword() throws Exception {
+
+        AccountChangePasswordDTO changePasswordDTO = AccountChangePasswordDTO.builder()
+                .oldPassword("test123")
+                .newPassword("qwerty123")
+                .repeatNewPassword("qwerty123")
+                .build();
+
+        AccountResponseDTO response = AccountResponseDTO.builder()
+                .email("Test@test.com")
+                .surname("Piv")
+                .name("Egor")
+                .build();
+
+        when(accountService.changePassword(anyLong(), any()))
+                .thenReturn(response);
+
+        mockMvc.perform(patch("/accounts/change-password/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(changePasswordDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(response.getName()))
+                .andExpect(jsonPath("$.surname").value(response.getSurname()))
+                .andExpect(jsonPath("$.email").value(response.getEmail()));
     }
 
     @Test
