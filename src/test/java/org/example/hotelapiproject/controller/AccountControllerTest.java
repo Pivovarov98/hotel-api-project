@@ -3,6 +3,7 @@ package org.example.hotelapiproject.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.hotelapiproject.dto.account_dto.AccountCreateDTO;
 import org.example.hotelapiproject.dto.account_dto.AccountResponseDTO;
+import org.example.hotelapiproject.dto.account_dto.AccountUpdateDTO;
 import org.example.hotelapiproject.service.AccountService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,29 @@ class AccountControllerTest {
 
     @Test
     void updateAccount() throws Exception {
+
+        AccountUpdateDTO updateDTO = AccountUpdateDTO.builder()
+                .email("newtest@test.com")
+                .name("Test name")
+                .surname("Test surname")
+                .build();
+
+        AccountResponseDTO response = AccountResponseDTO.builder()
+                .email(updateDTO.getEmail())
+                .surname(updateDTO.getSurname())
+                .name(updateDTO.getName())
+                .build();
+
+        when(accountService.updateAccountByID(anyLong(), any()))
+                .thenReturn(response);
+
+        mockMvc.perform(patch("/accounts/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(response.getName()))
+                .andExpect(jsonPath("$.surname").value(response.getSurname()))
+                .andExpect(jsonPath("$.email").value(response.getEmail()));
     }
 
     @Test
