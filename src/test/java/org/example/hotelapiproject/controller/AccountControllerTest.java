@@ -5,6 +5,8 @@ import org.example.hotelapiproject.dto.account_dto.AccountChangePasswordDTO;
 import org.example.hotelapiproject.dto.account_dto.AccountCreateDTO;
 import org.example.hotelapiproject.dto.account_dto.AccountResponseDTO;
 import org.example.hotelapiproject.dto.account_dto.AccountUpdateDTO;
+import org.example.hotelapiproject.dto.auth_dto.LoginRequestDTO;
+import org.example.hotelapiproject.dto.auth_dto.LoginResponseDTO;
 import org.example.hotelapiproject.service.AccountService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +65,26 @@ class AccountControllerTest {
 
     @Test
     void auth() throws Exception {
+
+        LoginRequestDTO loginRequestDTO = LoginRequestDTO.builder()
+                .email("test@test.com")
+                .password("test123")
+                .build();
+
+        LoginResponseDTO response = LoginResponseDTO.builder()
+                .accessToken("werfgyhwer-wertwegf-3wq3-fdheds")
+                .refreshToken("bgfdrfg-sreterghd-dfthre-er42")
+                .build();
+
+        when(accountService.loginAccountByEmail(any()))
+                .thenReturn(response);
+
+        mockMvc.perform(post("/accounts/log_in")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequestDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value(response.getAccessToken()))
+                .andExpect(jsonPath("$.refreshToken").value(response.getRefreshToken()));
     }
 
     @Test
