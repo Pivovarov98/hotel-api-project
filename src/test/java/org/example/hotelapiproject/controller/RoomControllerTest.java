@@ -66,6 +66,30 @@ class RoomControllerTest {
 
     @Test
     void updateRoomByID() throws Exception {
+
+        RoomUpdateDTO updateDTO = RoomUpdateDTO.builder()
+                .price(BigDecimal.valueOf(800))
+                .roomTitle("New Title")
+                .roomDescription("New desc")
+                .build();
+
+        RoomResponseDTO response = RoomResponseDTO.builder()
+                .hotelId(1L)
+                .roomTitle(updateDTO.getRoomTitle())
+                .roomDescription(updateDTO.getRoomDescription())
+                .price(updateDTO.getPrice())
+                .build();
+
+        when(roomService.updateRoomByID(anyLong(), any()))
+                .thenReturn(response);
+
+        mockMvc.perform(patch("/hotels/1/rooms/2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.roomTitle").value(response.getRoomTitle()))
+                .andExpect(jsonPath("$.roomDescription").value(response.getRoomDescription()))
+                .andExpect(jsonPath("$.price").value(response.getPrice()));
     }
 
     @Test
