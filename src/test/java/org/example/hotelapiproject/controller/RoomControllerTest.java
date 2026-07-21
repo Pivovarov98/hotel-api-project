@@ -94,5 +94,10 @@ class RoomControllerTest {
 
     @Test
     void deleteByID() throws Exception {
+
+        mockMvc.perform(delete("/hotels/1/rooms/2"))
+                .andExpect(status().isNoContent());
+
+        verify(roomService).deleteRoomByID(2L);
     }
 }
