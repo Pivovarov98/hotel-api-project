@@ -66,6 +66,22 @@ class AccountControllerTest {
 
     @Test
     void findAccountByID() throws Exception {
+
+        AccountResponseDTO response = AccountResponseDTO.builder()
+                .email("Test@test.com")
+                .surname("Piv")
+                .name("Egor")
+                .build();
+
+        when(accountService.findAccountByID(anyLong()))
+                .thenReturn(response);
+
+        mockMvc.perform(get("/accounts/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(response.getName()))
+                .andExpect(jsonPath("$.surname").value(response.getSurname()))
+                .andExpect(jsonPath("$.email").value(response.getEmail()));
     }
 
     @Test
