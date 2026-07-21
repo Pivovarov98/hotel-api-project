@@ -34,6 +34,23 @@ class RoomControllerTest {
 
     @Test
     void findRoomByID() throws Exception {
+
+        RoomResponseDTO response = RoomResponseDTO.builder()
+                .hotelId(156L)
+                .roomTitle("Room title")
+                .roomDescription("Test desc")
+                .price(BigDecimal.valueOf(500))
+                .build();
+
+        when(roomService.findRoomByID(anyLong()))
+                .thenReturn(response);
+
+        mockMvc.perform(get("/hotels/1/rooms/15")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.roomTitle").value(response.getRoomTitle()))
+                .andExpect(jsonPath("$.roomDescription").value(response.getRoomDescription()))
+                .andExpect(jsonPath("$.price").value(response.getPrice()));
     }
 
     @Test
